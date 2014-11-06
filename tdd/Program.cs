@@ -9,6 +9,18 @@ namespace tdd
 {
     class Processor
     {
+        public static bool IsDigitOrLetter(char c)
+        {
+            return (c >= '0' && c <= '9' || c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z');
+        }
+
+        public static bool IsUnderscoreBetweenDigitsOrLetters(string str, int index)
+        {
+            if (index == 0 || index == str.Length - 1)
+                return false;
+            return (str[index] == '_' && IsDigitOrLetter(str[index - 1]) && IsDigitOrLetter(str[index + 1]));
+                
+        }
 
         public static string Rewrite(string inputText)
         {
@@ -17,7 +29,7 @@ namespace tdd
             string result = "";
             while (i < inputText.Length)
             {
-                if (inputText[i] == '_')
+                if (inputText[i] == '_' && !IsUnderscoreBetweenDigitsOrLetters(inputText, i))
                 {
                     if (underscoreRead)
                         result += "</em>";
@@ -55,7 +67,12 @@ namespace tdd
             Assert.AreEqual("<em>Hello</em>", result);
         }
 
-        
+        [Test]
+        public void miss_underscores_between_text_and_digits()
+        {
+            var result = Processor.Rewrite("abc_def");
+            Assert.AreEqual("abc_def", result);
+        }
     }
      
 
