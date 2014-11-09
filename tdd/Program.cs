@@ -16,6 +16,7 @@ namespace tdd
         static Stack<string> TagsInInput;
         static string buffer;
         static int index;
+        private static bool inCodeTag;
 
         
 
@@ -26,6 +27,7 @@ namespace tdd
             TagsInInput = new Stack<string>();
             index = 0;
             buffer = "";
+            inCodeTag = false;
 
             while (index < inputText.Length)
             {
@@ -61,7 +63,13 @@ namespace tdd
 
         public static KeyValuePair<string, string> BeginsWithTag(string str)
         {
-            KeyValuePair<string, string> tag = BeginWithDoubleUnderscore(str);
+            KeyValuePair<string, string> tag = BeginWithBacktick(str);
+            if (IsEmptyPair(tag) && inCodeTag)
+                return EmptyPair();
+             
+            if (IsEmptyPair(tag))
+                tag = BeginWithDoubleUnderscore(str);
+
             if (IsEmptyPair(tag))
                 tag = BeginWithSingleUnderscore(str);
 
@@ -157,6 +165,22 @@ namespace tdd
             return new KeyValuePair<string, string>(TagString, TagName);
         }
 
+
+
+        public static KeyValuePair<string, string> BeginWithBacktick(string str)
+        {
+            if (str[index] == '`' && (inCodeTag || !inCodeTag && str.Substring(index + 1).Contains('`')))
+            {
+                string TagString = "`";
+                string TagName = "code";
+                inCodeTag = !inCodeTag;
+                return new KeyValuePair<string, string>(TagString, TagName);
+            }
+            return EmptyPair();
+        }
+
+
+
         static void Main(string[] args)
         {
         }
@@ -185,6 +209,21 @@ namespace tdd
             var result = Processor.Rewrite("__bold__");
             Assert.AreEqual("<strong>bold</strong>", result);
         }
+
+        [Test]
+        public void place_text_between_backtics_in_code_tags()
+        {
+            var result = Processor.Rewrite("`code`");
+            Assert.AreEqual("<code>code</code>", result);
+        }
+
+        [Test]
+        public void not_mark_tags_between_code_tag()
+        {
+            var result = Processor.Rewrite("`var _i_ = 0`");
+            Assert.AreEqual("<code>var _i_ = 0</code>", result);
+        }
+       
     }
      
 
