@@ -61,8 +61,19 @@ namespace tdd
 
         public static KeyValuePair<string, string> BeginsWithTag(string str)
         {
-            return BeginWithSingleUnderscore(str);
+            KeyValuePair<string, string> tag = BeginWithDoubleUnderscore(str);
+            if (IsEmptyPair(tag))
+                tag = BeginWithSingleUnderscore(str);
+
+            return tag;
         }
+
+
+        public static bool IsEmptyPair(KeyValuePair<string, string> pair)
+        {
+            return (pair.Key == "" && pair.Value == "");
+        }
+
 
         public static KeyValuePair<string, string> BeginWithSingleUnderscore(string str)
         {
@@ -120,12 +131,30 @@ namespace tdd
             return (c >= '0' && c <= '9' || c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z');
         }
 
-        public static bool IsUnderscoreBetweenDigitsOrLetters(string str, int index)
+        public static bool IsUnderscoreBetweenDigitsOrLetters(string str)
         {
             if (index == 0 || index == str.Length - 1)
                 return false;
             return (str[index] == '_' && IsDigitOrLetter(str[index - 1]) && IsDigitOrLetter(str[index + 1]));
 
+        }
+
+
+
+        public static KeyValuePair<string, string> BeginWithDoubleUnderscore(string str)
+        {
+            if (index >= str.Length - 1)
+                return EmptyPair();
+
+            if (index > 0 && IsDigitOrLetter(str[index - 1]) && index + 2 < str.Length && IsDigitOrLetter(str[index + 2]))
+                return EmptyPair();
+
+            if (str[index] != '_' || str[index + 1] != '_')
+                return EmptyPair();
+
+            string TagString = "__";
+            string TagName = "strong";
+            return new KeyValuePair<string, string>(TagString, TagName);
         }
 
         static void Main(string[] args)
