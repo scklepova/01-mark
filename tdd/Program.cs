@@ -50,7 +50,7 @@ namespace tdd
 
             while (TagsInInput.Any())
             {
-                htmlCode = TagsInInput.Peek() + htmlCode + TextBetweenTags.Peek();
+                htmlCode = TextBetweenTags.Peek() + TagsInInput.Peek() + htmlCode;
                 TagsInInput.Pop();
                 TextBetweenTags.Pop();
             }
@@ -222,6 +222,14 @@ namespace tdd
         {
             var result = Processor.Rewrite("`var _i_ = 0`");
             Assert.AreEqual("<code>var _i_ = 0</code>", result);
+        }
+
+
+        [Test]
+        public void not_mark_unpair_tags()
+        {
+            var result = Processor.Rewrite("__a _b`c");
+            Assert.AreEqual("__a _b`c", result);
         }
        
     }
