@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -35,6 +36,14 @@ namespace tdd
         {
             while (index < inputText.Length)
             {
+                BackslashReader backslashReader = new BackslashReader();
+                if (backslashReader.ReadBackslash(inputText, index))
+                {
+                    buffer += inputText[index + 1];
+                    index += 2;
+                    continue;
+                }
+
                 bool tagRead = false;
                 foreach (var tag in TagsList)
                 {
@@ -112,6 +121,7 @@ namespace tdd
 
         static void Main(string[] args)
         {
+            
         }
     }
 
@@ -123,6 +133,16 @@ namespace tdd
         {
             Processor processor = new Processor();
 
+            var result = processor.Rewrite(inputText);
+            Assert.AreEqual(expectedHtml, result);
+        }
+
+        void CheckRewriteFromTextFile(string inputFilename, string expectedHtmlFilename)
+        {
+            string inputText = File.ReadAllText(inputFilename);
+            string expectedHtml = File.ReadAllText(expectedHtmlFilename);
+
+            var processor = new Processor();
             var result = processor.Rewrite(inputText);
             Assert.AreEqual(expectedHtml, result);
         }
@@ -156,6 +176,18 @@ namespace tdd
         public void not_mark_unpair_tags()
         {
             CheckRewrite("__a _b`c", "__a _b`c");
+        }
+
+        [Test]
+        public void not_mark_underscores_between_digits_and_letters()
+        {
+            CheckRewrite("abc_def__fgh", "abc_def__fgh");
+        }
+
+        [Test]
+        public void shield_symbols_after_backslash()
+        {
+            CheckRewriteFromTextFile("../../tests/backslashes.txt", "../../tests/rewritedBackslashes.txt");
         }
     }
 }
