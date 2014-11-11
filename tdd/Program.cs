@@ -33,8 +33,6 @@ namespace tdd
 
         public string Rewrite(string inputText)
         {
-            inputText = " " + inputText + " ";
-
             while (index < inputText.Length)
             {
                 bool tagRead = false;
@@ -133,25 +131,31 @@ namespace tdd
         [Test]
         public void place_text_between_single_underscores_in_em_tag()
         {
-            CheckRewrite("_Hello_", "<em>Hello</em>");
+            CheckRewrite(" _Hello_ ", "<em>Hello</em>");
         }
 
         [Test]
         public void place_text_between_double_underscores_in_strong_tag()
         {
-            CheckRewrite("__bold__", "<strong>bold</strong>");
+            CheckRewrite(" __bold__ ", "<strong>bold</strong>");
         }
 
         [Test]
         public void place_text_between_backtics_in_code_tags()
         {
-            CheckRewrite("`code`", "<code>code</code>");
+            CheckRewrite(" `code` ", "<code>code</code>");
         }
 
         [Test]
         public void not_mark_tags_between_code_tag()
         {
-            CheckRewrite("`var _i_ = 0`", "<code>var _i_ = 0</code>");
+            CheckRewrite(" `var _i_ = 0` ", "<code>var _i_ = 0</code>");
+        }
+
+        [Test]
+        public void not_mark_unpair_tags()
+        {
+            CheckRewrite("__a _b`c", "__a _b`c");
         }
     }
 }
