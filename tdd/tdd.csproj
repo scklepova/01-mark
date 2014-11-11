@@ -59,7 +59,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="tests\backslashes.txt" />
+    <Content Include="tests\paragraph.txt" />
     <Content Include="tests\rewritedBackslashes.txt" />
+    <Content Include="tests\rewritedParagraph.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
