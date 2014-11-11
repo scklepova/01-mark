@@ -26,8 +26,8 @@ namespace tdd
             this.buffer = "";
             this.inCodeTag = false;
             this.TagsList = new List<Tag>();
-            this.TagsList.Add(new Tag("em", "_"));
             this.TagsList.Add(new Tag("strong", "__"));
+            this.TagsList.Add(new Tag("em", "_"));
             this.TagsList.Add(new Tag("code", "`"));
         }
 
@@ -106,15 +106,32 @@ namespace tdd
     [TestFixture]
     public class MarkupLanguageProcessor_should
     {
-        [Test]
-        public void place_text_between_single_underscores_in_em_tag()
+
+        private static void CheckRewrite(string inputText, string expectedHtml)
         {
             Processor processor = new Processor();
 
-            var result = processor.Rewrite("_Hello_");
-            Assert.AreEqual("<em>Hello</em>", result);
+            var result = processor.Rewrite(inputText);
+            Assert.AreEqual(expectedHtml, result);
         }
 
-    }
 
+        [Test]
+        public void place_text_between_single_underscores_in_em_tag()
+        {
+            CheckRewrite("_Hello_", "<em>Hello</em>");
+        }
+
+        [Test]
+        public void place_text_between_double_underscores_in_strong_tag()
+        {
+            CheckRewrite("__bold__", "<strong>bold</strong>");
+        }
+
+        [Test]
+        public void place_text_between_backtics_in_code_tags()
+        {
+            CheckRewrite("`code`", "<code>code</code>");
+        }
+    }
 }

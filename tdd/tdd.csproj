@@ -44,10 +44,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClosingTagReader.cs" />
-    <Compile Include="DoubleUnderscoreReader.cs" />
-    <Compile Include="OpeningTagReader.cs" />
-    <Compile Include="SingleUnderscoreReader.cs" />
     <Compile Include="Tag.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
