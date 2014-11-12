@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
@@ -11,15 +12,24 @@ namespace tdd
     class Processor_test
     {
         [TestFixture]
-        public class MarkupLanguageProcessor_should
+        public class Markup_Language_Processor_should
         {
 
             private static void CheckRewrite(string inputText, string expectedHtml)
             {
-                Processor processor = new Processor();
+                var processor = new Processor();
 
-                var result = processor.RewriteStringToHtml(inputText);
-                Assert.AreEqual(expectedHtml, result);
+                var resultHtml = processor.RewriteStringToHtml(inputText);
+              
+                CompareHtmlCodes(expectedHtml, resultHtml);
+            }
+
+            static void CompareHtmlCodes(string codeA, string codeB)
+            {
+                codeA = Regex.Replace(codeA, "[\\n\\t\\s\\r]", String.Empty);
+                codeB = Regex.Replace(codeB, "[\\n\\t\\s\\r]", String.Empty);
+
+                Assert.AreEqual(codeA, codeB);
             }
 
             void CheckRewriteFromTextFile(string inputFilename, string expectedHtmlFilename)
@@ -28,8 +38,9 @@ namespace tdd
                 string expectedHtml = File.ReadAllText(expectedHtmlFilename);
 
                 var processor = new Processor();
-                var result = processor.RewriteStringToHtml(inputText);
-                Assert.AreEqual(expectedHtml, result);
+                var resultHtml = processor.RewriteStringToHtml(inputText);
+              
+                CompareHtmlCodes(expectedHtml, resultHtml);
             }
 
 
