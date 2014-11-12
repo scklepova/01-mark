@@ -10,23 +10,26 @@ namespace tdd
     {
         public int ReadSymbolsCount ;
         public string StringToWrite ;
+        public string TagName ;
 
 
-        public ReaderOutcome(int readSymbolCount, string stringToWrite)
+        public ReaderOutcome(int readSymbolCount, string stringToWrite, string tagName)
         {
             this.ReadSymbolsCount = readSymbolCount;
             this.StringToWrite = stringToWrite;
+            this.TagName = tagName;
         }
 
         public ReaderOutcome()
         {
             this.ReadSymbolsCount = 0;
             this.StringToWrite = "";
+            this.TagName = "";
         }
 
-        public bool isEmptyOutcome(ReaderOutcome outcome)
+        public bool Empty()
         {
-            return (outcome.ReadSymbolsCount == 0 && outcome.StringToWrite == "");
+            return (this.ReadSymbolsCount == 0 && this.StringToWrite == "");
         }
     }
 

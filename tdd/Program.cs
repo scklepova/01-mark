@@ -12,53 +12,41 @@ namespace tdd
 {
     class Processor
     {
+        private readonly List<ElementReader> Readers;
 
-        Stack<string> TextBetweenTags;
-        Stack<Tag> TagsStack;
-        string buffer;
-        int index;
-        private bool InCodeTag;
-        private List<Tag> TagsList;
 
         public Processor()
         {
-            this.TextBetweenTags = new Stack<string>();
-            this.TagsStack = new Stack<Tag>();
-            this.index = 0;
-            this.buffer = "";
-            this.InCodeTag = false;
-
-            this.TagsList = new List<Tag>();
-            this.TagsList.Add(new Tag("strong", "__"));
-            this.TagsList.Add(new Tag("em", "_"));
-            this.TagsList.Add(new Tag("code", "`"));
+            var tagsList = new List<Tag> { new Tag("strong", "__"), new Tag("em", "_") };
+            this.Readers = new List<ElementReader> { new BackslashReader(), new BackticksReader() };
+            foreach (var tag in tagsList)
+            {
+                this.Readers.Add(new TagReader(tag));
+            }
+            this.Readers.Add(new AnySymbolReader());
         }
 
-        
+
         public string RewriteFileToHtml(string inputFile)
         {
-            string[] paragraphs = SplitFileIntoParagraphs(inputFile);
-            List<string> htmlParagraphs = new List<string>();
-            for (int i = 0; i < paragraphs.Length; i++)
-            {
-                string rewritedParagraph = RewriteParagraph(paragraphs[i]);
-                htmlParagraphs.Add(rewritedParagraph);
-            }
-     
+            var paragraphs = SplitFileIntoParagraphs(inputFile);
+            var htmlParagraphs = paragraphs.Select(RewriteParagraph).ToList();
+
             return JoinParagraphsToString(htmlParagraphs);
         }
 
-        public string RewriteStringToHtml(string inputText)
+
+        public string RewriteStringToHtml(string inputText) //use only for tests
         {
-            string[] paragraphs = Regex.Split(inputText, Environment.NewLine + "\\s*" + Environment.NewLine);
-            List<string> htmlParagraphs = new List<string>();
+            var paragraphs = Regex.Split(inputText, Environment.NewLine + "\\s*" + Environment.NewLine);
+            var htmlParagraphs = new List<string>();
             for (int i = 0; i < paragraphs.Length; i++)
             {
                 string rewritedParagraph = RewriteParagraph(paragraphs[i]);
                 htmlParagraphs.Add(rewritedParagraph);
             }
 
-            return JoinParagraphsToString(htmlParagraphs); 
+            return JoinParagraphsToString(htmlParagraphs);
         }
 
 
@@ -86,102 +74,48 @@ namespace tdd
 
         private string RewriteParagraph(string paragraph)
         {
-            buffer = "";
-            index = 0;
-            TagsStack.Clear();
-            TextBetweenTags.Clear();
+            string buffer = "";
+            int index = 0;
+            Stack<string> tagStack = new Stack<string>();
+
             while (index < paragraph.Length)
             {
-                BackslashReader backslashReader = new BackslashReader();
-                if (backslashReader.ReadBackslash(paragraph, index))
-                {
-                    buffer += paragraph[index + 1];
-                    index += 2;
-                    continue;
-                }
-
                 bool tagRead = false;
-                foreach (var tag in TagsList)
+                foreach (var reader in Readers)
                 {
-                    TagReader reader = new TagReader(tag);
-                    if (TagsStack.Any() && TagsStack.Peek().Equals(tag))
-                    {
-                        tagRead = reader.ReadClosingTag(paragraph, index);
-                        if (tagRead)
-                        {
-                            PushTagInStack(tag);
-                            break;
-                        }
-                    }
+                    ReaderOutcome outcome = reader.ReadElement(paragraph, index);
+                    if (outcome.Empty())
+                        continue;
 
-                    tagRead = reader.ReadOpeningTag(paragraph, index);
-                    if (tagRead)
-                    {
-                        if (tag.HtmlTag == "code")
-                        {
-                            index += 2;
-                            buffer += "<code>";
-                            while (!reader.ReadClosingTag(paragraph, index))
-                            {
-                                buffer += paragraph[index];
-                                index++;
-                            }
+                    buffer += outcome.StringToWrite;
+                    index += outcome.ReadSymbolsCount;
+                    if (outcome.TagName != "")
+                        PushTagInStack(outcome.TagName, tagStack);
+                    break;
 
-                            buffer += "</code>";
-                            index += 2;
-                        }
-                        else
-                        {
-                            PushTagInStack(tag);
-                            buffer += "<" + tag.HtmlTag + ">";
-                        }
-
-                        break;
-                    }
                 }
 
-                if (!tagRead)
-                {
-                    buffer += paragraph[index];
-                    index++;
-                }
             }
 
-            string htmlCode = buffer;
-
-            while (TextBetweenTags.Any())
-            {
-                htmlCode = TextBetweenTags.Peek() + htmlCode;
-                TextBetweenTags.Pop();
-            }
-
-            return htmlCode;
+            return buffer;
         }
 
 
-        void PushTagInStack(Tag tag)
+        void PushTagInStack(string tagName, Stack<string> tagStack)
         {
-            if (TagsStack.Any() && TagsStack.Peek().Equals(tag))
-            {
-                buffer = buffer + "</" + tag.HtmlTag + ">";
-                TagsStack.Pop();
-            }
+            if (tagStack.Any() && tagStack.Peek() == tagName)
+                tagStack.Pop();
             else
-            {
-
-                TagsStack.Push(tag);
-            }
-            index += tag.TextTag.Length + 1;
-
+                tagStack.Push(tagName);
         }
 
-   
+
 
         static void Main(string[] args)
         {
-            
+
         }
     }
 
-    
+
 }

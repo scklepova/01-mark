@@ -48,13 +48,13 @@ namespace tdd
             [Test]
             public void place_text_between_backtics_in_code_tags()
             {
-                CheckRewrite(" `code` ", "<code>code</code>");
+                CheckRewrite("`code`", "<code>code</code>");
             }
 
             [Test]
             public void not_mark_tags_between_code_tag()
             {
-                CheckRewrite(" `var _i_ = 0` ", "<code>var _i_ = 0</code>");
+                CheckRewrite("`var _i_ = 0`", "<code>var _i_ = 0</code>");
             }
 
             [Test]

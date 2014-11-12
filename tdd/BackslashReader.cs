@@ -6,13 +6,16 @@ using System.Threading.Tasks;
 
 namespace tdd
 {
-    class BackslashReader
+    class BackslashReader : ElementReader
     {
         public BackslashReader() { }
 
-        public bool ReadBackslash(string str, int index)
+        public ReaderOutcome ReadElement(string str, int index)
         {
-            return (str[index] == '\\' && index + 1 < str.Length) ;
+            if (str[index] == '\\' && index + 1 < str.Length) 
+                return new ReaderOutcome(2, str[index + 1] + "", "");
+
+            return  new ReaderOutcome();
         } 
 
     }

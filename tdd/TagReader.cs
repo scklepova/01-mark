@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace tdd
 {
-    class TagReader
+    class TagReader : ElementReader
     {
         protected Tag TagToRead;
 
@@ -17,7 +17,9 @@ namespace tdd
             this.TagToRead = tagToRead;
         }
 
-        public bool ReadOpeningTag(string str, int index)
+
+
+        public virtual bool ReadOpeningTag(string str, int index)
         {
             if (index + TagToRead.TextTag.Length + 1 >= str.Length)
                 return false;
@@ -26,12 +28,27 @@ namespace tdd
                str.Substring(index + TagToRead.TextTag.Length + 1).Contains(TagToRead.TextTag + " "));
         }
 
-        public bool ReadClosingTag(string str, int index)
+
+
+        public virtual bool ReadClosingTag(string str, int index)
         {
             if (index + TagToRead.TextTag.Length + 1 > str.Length)
                 return false;
 
             return (str.Substring(index, TagToRead.TextTag.Length + 1) == TagToRead.TextTag + " ");
+        }
+
+
+
+        public ReaderOutcome ReadElement(string str, int index)
+        {
+            if (ReadOpeningTag(str, index))
+                return new ReaderOutcome(TagToRead.TextTag.Length + 1, "<" + TagToRead.HtmlTag + ">", TagToRead.HtmlTag);
+
+            if (ReadClosingTag(str, index))
+                return new ReaderOutcome(TagToRead.TextTag.Length + 1, "</" + TagToRead.HtmlTag + ">", TagToRead.HtmlTag);
+
+            return new ReaderOutcome();
         }
     }
 }
