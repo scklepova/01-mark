@@ -27,98 +27,54 @@ namespace tdd
             this.index = 0;
             this.buffer = "";
             this.InCodeTag = false;
+
             this.TagsList = new List<Tag>();
             this.TagsList.Add(new Tag("strong", "__"));
             this.TagsList.Add(new Tag("em", "_"));
             this.TagsList.Add(new Tag("code", "`"));
         }
 
-        public string Rewrite(string inputText)
+        
+        public string RewriteFileToHtml(string inputFile)
         {
-            string[] paragraphs = Regex.Split(inputText, Environment.NewLine + "\\s*" + Environment.NewLine);
-            string resultHtml = "";
+            string[] paragraphs = SplitFileIntoParagraphs(inputFile);
             List<string> htmlParagraphs = new List<string>();
             for (int i = 0; i < paragraphs.Length; i++)
             {
-                inputText = paragraphs[i];
-                index = 0;
-                while (index < inputText.Length)
-                {
-                    BackslashReader backslashReader = new BackslashReader();
-                    if (backslashReader.ReadBackslash(inputText, index))
-                    {
-                        buffer += inputText[index + 1];
-                        index += 2;
-                        continue;
-                    }
+                string rewritedParagraph = RewriteParagraph(paragraphs[i]);
+                htmlParagraphs.Add(rewritedParagraph);
+            }
+     
+            return JoinParagraphsToString(htmlParagraphs);
+        }
 
-                    bool tagRead = false;
-                    foreach (var tag in TagsList)
-                    {
-                        TagReader reader = new TagReader(tag);
-                        if (TagsStack.Any() && TagsStack.Peek().Equals(tag))
-                        {
-                            tagRead = reader.ReadClosingTag(inputText, index);
-                            if (tagRead)
-                            {
-                                PushTagInStack(tag);
-                                break;
-                            }
-                        }
-
-                        tagRead = reader.ReadOpeningTag(inputText, index);
-                        if (tagRead)
-                        {
-                            if (tag.HtmlTag == "code")
-                            {
-                                index += 2;
-                                buffer += "<code>";
-                                while (!reader.ReadClosingTag(inputText, index))
-                                {
-                                    buffer += inputText[index];
-                                    index++;
-                                }
-
-                                buffer += "</code>";
-                                index += 2;
-
-                            }
-                            else
-                            {
-                                PushTagInStack(tag);   
-                                buffer += "<" + tag.HtmlTag + ">";
-                            }
-                            
-                            break;
-                        }
-                    }
-
-                    if (!tagRead)
-                    {
-                        buffer += inputText[index];
-                        index++;
-                    }
-
-                }
-
-                string htmlCode = buffer;
-
-                while (TextBetweenTags.Any())
-                {
-                    htmlCode = TextBetweenTags.Peek() + htmlCode;
-                    TextBetweenTags.Pop();
-                }
-
-                //htmlCode = "<p>" + htmlCode + "</p>";
-                //resultHtml += htmlCode;
-                htmlParagraphs.Add(htmlCode);
-                buffer = "";
-                
+        public string RewriteStringToHtml(string inputText)
+        {
+            string[] paragraphs = Regex.Split(inputText, Environment.NewLine + "\\s*" + Environment.NewLine);
+            List<string> htmlParagraphs = new List<string>();
+            for (int i = 0; i < paragraphs.Length; i++)
+            {
+                string rewritedParagraph = RewriteParagraph(paragraphs[i]);
+                htmlParagraphs.Add(rewritedParagraph);
             }
 
-            resultHtml = htmlParagraphs.First();
-            htmlParagraphs.RemoveAt(0);
-            foreach (var paragraph in htmlParagraphs)
+            return JoinParagraphsToString(htmlParagraphs); 
+        }
+
+
+        public string[] SplitFileIntoParagraphs(string filename)
+        {
+            string inputText = File.ReadAllText(filename);
+            return Regex.Split(inputText, Environment.NewLine + "\\s*" + Environment.NewLine);
+        }
+
+
+
+        public string JoinParagraphsToString(List<string> paragraphs)
+        {
+            string resultHtml = paragraphs.First();
+            paragraphs.RemoveAt(0);
+            foreach (var paragraph in paragraphs)
             {
                 resultHtml += "<p>" + paragraph + "</p>" + Environment.NewLine;
             }
@@ -126,7 +82,82 @@ namespace tdd
             return resultHtml;
         }
 
-    
+
+
+        private string RewriteParagraph(string paragraph)
+        {
+            buffer = "";
+            index = 0;
+            TagsStack.Clear();
+            TextBetweenTags.Clear();
+            while (index < paragraph.Length)
+            {
+                BackslashReader backslashReader = new BackslashReader();
+                if (backslashReader.ReadBackslash(paragraph, index))
+                {
+                    buffer += paragraph[index + 1];
+                    index += 2;
+                    continue;
+                }
+
+                bool tagRead = false;
+                foreach (var tag in TagsList)
+                {
+                    TagReader reader = new TagReader(tag);
+                    if (TagsStack.Any() && TagsStack.Peek().Equals(tag))
+                    {
+                        tagRead = reader.ReadClosingTag(paragraph, index);
+                        if (tagRead)
+                        {
+                            PushTagInStack(tag);
+                            break;
+                        }
+                    }
+
+                    tagRead = reader.ReadOpeningTag(paragraph, index);
+                    if (tagRead)
+                    {
+                        if (tag.HtmlTag == "code")
+                        {
+                            index += 2;
+                            buffer += "<code>";
+                            while (!reader.ReadClosingTag(paragraph, index))
+                            {
+                                buffer += paragraph[index];
+                                index++;
+                            }
+
+                            buffer += "</code>";
+                            index += 2;
+                        }
+                        else
+                        {
+                            PushTagInStack(tag);
+                            buffer += "<" + tag.HtmlTag + ">";
+                        }
+
+                        break;
+                    }
+                }
+
+                if (!tagRead)
+                {
+                    buffer += paragraph[index];
+                    index++;
+                }
+            }
+
+            string htmlCode = buffer;
+
+            while (TextBetweenTags.Any())
+            {
+                htmlCode = TextBetweenTags.Peek() + htmlCode;
+                TextBetweenTags.Pop();
+            }
+
+            return htmlCode;
+        }
+
 
         void PushTagInStack(Tag tag)
         {
@@ -137,8 +168,7 @@ namespace tdd
             }
             else
             {
-                //TextBetweenTags.Push(buffer);
-                //buffer = "";
+
                 TagsStack.Push(tag);
             }
             index += tag.TextTag.Length + 1;
@@ -153,89 +183,5 @@ namespace tdd
         }
     }
 
-    [TestFixture]
-    public class MarkupLanguageProcessor_should
-    {
-
-        private static void CheckRewrite(string inputText, string expectedHtml)
-        {
-            Processor processor = new Processor();
-
-            var result = processor.Rewrite(inputText);
-            Assert.AreEqual(expectedHtml, result);
-        }
-
-        void CheckRewriteFromTextFile(string inputFilename, string expectedHtmlFilename)
-        {
-            string inputText = File.ReadAllText(inputFilename);
-            string expectedHtml = File.ReadAllText(expectedHtmlFilename);
-
-            var processor = new Processor();
-            var result = processor.Rewrite(inputText);
-            Assert.AreEqual(expectedHtml, result);
-        }
-
-
-        [Test]
-        public void place_text_between_single_underscores_in_em_tag()
-        {
-            CheckRewrite(" _Hello_ ", "<em>Hello</em>");
-        }
-
-        [Test]
-        public void place_text_between_double_underscores_in_strong_tag()
-        {
-            CheckRewrite(" __bold__ ", "<strong>bold</strong>");
-        }
-
-        [Test]
-        public void place_text_between_backtics_in_code_tags()
-        {
-            CheckRewrite(" `code` ", "<code>code</code>");
-        }
-
-        [Test]
-        public void not_mark_tags_between_code_tag()
-        {
-            CheckRewrite(" `var _i_ = 0` ", "<code>var _i_ = 0</code>");
-        }
-
-        [Test]
-        public void not_mark_unpair_tags()
-        {
-            CheckRewrite("__a _b`c", "__a _b`c");
-        }
-
-        [Test]
-        public void not_mark_underscores_between_digits_and_letters()
-        {
-            CheckRewrite("abc_def__fgh", "abc_def__fgh");
-        }
-
-        [Test]
-        public void shield_symbols_after_backslash()
-        {
-            CheckRewriteFromTextFile("../../tests/backslashes.txt", "../../tests/rewritedBackslashes.txt");
-        }
-
-        [Test]
-        public void place_text_after_two_lines_in_paragraph()
-        {
-            CheckRewriteFromTextFile("../../tests/backslashes.txt", "../../tests/rewritedBackslashes.txt");
-        }
-
-        [Test]
-        public void parse_inserted_tags()
-        {
-            CheckRewrite(" __a _b_ c__ ", "<strong>a<em>b</em>c</strong>");
-            CheckRewrite(" _a __b__ c_ ", "<em>a<strong>b</strong>c</em>");
-            CheckRewriteFromTextFile("../../tests/inserted_tags.txt", "../../tests/rewrited_inserted_tags.txt");
-        }
-
-        [Test]
-        public void parse_complex_text()
-        {
-            CheckRewriteFromTextFile("../../tests/complexTest.txt", "../../tests/rewritedComplexTest.txt");
-        }
-    }
+    
 }
