@@ -35,7 +35,7 @@ namespace tdd
 
         public string Rewrite(string inputText)
         {
-            string[] paragraphs = Regex.Split(inputText, "\\n\\s*\\n");
+            string[] paragraphs = Regex.Split(inputText, Environment.NewLine + "\\s*" + Environment.NewLine);
             string resultHtml = "";
             List<string> htmlParagraphs = new List<string>();
             for (int i = 0; i < paragraphs.Length; i++)
@@ -79,10 +79,15 @@ namespace tdd
                                 }
 
                                 buffer += "</code>";
-                                index++;
+                                index += 2;
 
                             }
-                            PushTagInStack(tag);
+                            else
+                            {
+                                PushTagInStack(tag);   
+                                buffer += "<" + tag.HtmlTag + ">";
+                            }
+                            
                             break;
                         }
                     }
@@ -124,7 +129,7 @@ namespace tdd
         {
             if (TagsStack.Any() && TagsStack.Peek().Equals(tag))
             {
-                buffer = "<" + tag.HtmlTag + ">" + buffer + "</" + tag.HtmlTag + ">";
+                buffer = buffer + "</" + tag.HtmlTag + ">";
                 TagsStack.Pop();
             }
             else
@@ -214,6 +219,14 @@ namespace tdd
         public void place_text_after_two_lines_in_paragraph()
         {
             CheckRewriteFromTextFile("../../tests/backslashes.txt", "../../tests/rewritedBackslashes.txt");
+        }
+
+        [Test]
+        public void parse_inserted_tags()
+        {
+            CheckRewrite(" __a _b_ c__ ", "<strong>a<em>b</em>c</strong>");
+            CheckRewrite(" _a __b__ c_ ", "<em>a<strong>b</strong>c</em>");
+            CheckRewriteFromTextFile("../../tests/inserted_tags.txt", "../../tests/rewrited_inserted_tags.txt");
         }
     }
 }
