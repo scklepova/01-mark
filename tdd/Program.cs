@@ -41,6 +41,7 @@ namespace tdd
             for (int i = 0; i < paragraphs.Length; i++)
             {
                 inputText = paragraphs[i];
+                index = 0;
                 while (index < inputText.Length)
                 {
                     BackslashReader backslashReader = new BackslashReader();
@@ -111,13 +112,15 @@ namespace tdd
                 //htmlCode = "<p>" + htmlCode + "</p>";
                 //resultHtml += htmlCode;
                 htmlParagraphs.Add(htmlCode);
+                buffer = "";
+                
             }
 
             resultHtml = htmlParagraphs.First();
             htmlParagraphs.RemoveAt(0);
             foreach (var paragraph in htmlParagraphs)
             {
-                resultHtml += "<p>" + paragraph + "</p>";
+                resultHtml += "<p>" + paragraph + "</p>" + Environment.NewLine;
             }
 
             return resultHtml;
@@ -134,8 +137,8 @@ namespace tdd
             }
             else
             {
-                TextBetweenTags.Push(buffer);
-                buffer = "";
+                //TextBetweenTags.Push(buffer);
+                //buffer = "";
                 TagsStack.Push(tag);
             }
             index += tag.TextTag.Length + 1;
@@ -227,6 +230,12 @@ namespace tdd
             CheckRewrite(" __a _b_ c__ ", "<strong>a<em>b</em>c</strong>");
             CheckRewrite(" _a __b__ c_ ", "<em>a<strong>b</strong>c</em>");
             CheckRewriteFromTextFile("../../tests/inserted_tags.txt", "../../tests/rewrited_inserted_tags.txt");
+        }
+
+        [Test]
+        public void parse_complex_text()
+        {
+            CheckRewriteFromTextFile("../../tests/complexTest.txt", "../../tests/rewritedComplexTest.txt");
         }
     }
 }

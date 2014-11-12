@@ -59,9 +59,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="tests\backslashes.txt" />
+    <Content Include="tests\complexTest.txt" />
     <Content Include="tests\inserted_tags.txt" />
     <Content Include="tests\paragraph.txt" />
     <Content Include="tests\rewritedBackslashes.txt" />
+    <Content Include="tests\rewritedComplexTest.txt" />
     <Content Include="tests\rewritedParagraph.txt" />
     <Content Include="tests\rewrited_inserted_tags.txt" />
   </ItemGroup>
