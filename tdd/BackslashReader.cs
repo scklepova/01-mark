@@ -10,7 +10,7 @@ namespace tdd
     {
         public BackslashReader() { }
 
-        public ReaderOutcome ReadElement(string str, int index)
+        public ReaderOutcome ReadElement(string str, int index, string lastReadTag)
         {
             if (str[index] == '\\' && index + 1 < str.Length) 
                 return new ReaderOutcome(2, str[index + 1] + "", "");

@@ -26,8 +26,8 @@ namespace tdd
 
             static void CompareHtmlCodes(string codeA, string codeB)
             {
-                codeA = Regex.Replace(codeA, "[\\n\\t\\s\\r]", String.Empty);
-                codeB = Regex.Replace(codeB, "[\\n\\t\\s\\r]", String.Empty);
+                codeA = Regex.Replace(codeA, "\\s", String.Empty);
+                codeB = Regex.Replace(codeB, "\\s", String.Empty);
 
                 Assert.AreEqual(codeA, codeB);
             }
@@ -98,6 +98,7 @@ namespace tdd
                 CheckRewrite(" __a _b_ c__ ", "<strong>a<em>b</em>c</strong>");
                 CheckRewrite(" _a __b__ c_ ", "<em>a<strong>b</strong>c</em>");
                 CheckRewriteFromTextFile("../../tests/inserted_tags.txt", "../../tests/rewrited_inserted_tags.txt");
+                CheckRewrite(" _ a _ b _ c _ d", "<em>a</em>b<em>c</em>d");
             }
 
             [Test]

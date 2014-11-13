@@ -12,7 +12,7 @@ namespace tdd
             : base() { }
 
 
-        public ReaderOutcome ReadElement(string str, int index)
+        public ReaderOutcome ReadElement(string str, int index, string lastReadTag)
         {
             if (str[index] == '`' && index < str.Length - 1 && str.Substring(index + 1).Contains("`"))
             {

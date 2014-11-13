@@ -11,7 +11,7 @@ namespace tdd
         public AnySymbolReader() { }
 
 
-        public ReaderOutcome ReadElement(string str, int index)
+        public ReaderOutcome ReadElement(string str, int index, string lastReadTag)
         {
             return new ReaderOutcome(1, str[index] + "", "");
         }

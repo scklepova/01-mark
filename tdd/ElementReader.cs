@@ -9,6 +9,6 @@ namespace tdd
 {
     interface ElementReader
     {
-        ReaderOutcome ReadElement(string str, int index);
+        ReaderOutcome ReadElement(string str, int index, string lastReadTag);
     }
 }

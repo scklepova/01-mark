@@ -49,9 +49,10 @@
     <Compile Include="BackslashReader.cs" />
     <Compile Include="BackticksReader.cs" />
     <Compile Include="ElementReader.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="ReaderOutcome.cs" />
     <Compile Include="Tag.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="Processor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TagReader.cs" />
     <Compile Include="Processor_test.cs" />
