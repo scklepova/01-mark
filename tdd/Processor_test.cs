@@ -106,6 +106,13 @@ namespace tdd
             {
                 CheckRewriteFromTextFile("../../tests/complexTest.txt", "../../tests/rewritedComplexTest.txt");
             }
+
+            [Test]
+            public void not_apply_html_tags_from_input_file()
+            {
+                CheckRewrite(" __<strong>__ ", "<strong>&lt;strong&gt;</strong>");
+                CheckRewrite("`<br>`", "<code>&lt;br&gt;</code>");
+            }
         }
     }
 }

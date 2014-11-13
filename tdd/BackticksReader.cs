@@ -17,10 +17,20 @@ namespace tdd
             if (str[index] == '`' && index < str.Length - 1 && str.Substring(index + 1).Contains("`"))
             {
                 int count = 0;
+                string buffer = "";
                 while (str[index + count + 1] != '`')
-                    count++;
+                {
+                    if (str[index + count + 1] == '<')
+                        buffer += "&lt;";
+                    else if (str[index + count + 1] == '>')
+                        buffer += "&gt;";
+                    else
+                        buffer += str[index + count + 1];
 
-                string toWrite = "<code>" + str.Substring(index + 1, count) + "</code>";
+                    count++;
+                }
+
+                string toWrite = "<code>" + buffer + "</code>";
                 return new ReaderOutcome(count + 2, toWrite, "code");
             }
 

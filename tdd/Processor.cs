@@ -18,7 +18,7 @@ namespace tdd
         public Processor()
         {
             var tagsList = new List<Tag> { new Tag("strong", "__"), new Tag("em", "_") };
-            this.Readers = new List<ElementReader> { new BackslashReader(), new BackticksReader() };
+            this.Readers = new List<ElementReader> { new BackslashReader(), new BackticksReader(), new LessThanReader(), new GreaterThanReader() };
             foreach (var tag in tagsList)
             {
                 this.Readers.Add(new TagReader(tag));
