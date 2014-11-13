@@ -57,7 +57,7 @@ namespace tdd
 
         static string WriteRewritedTextIntoNewFile(string filename, string toWrite)
         {
-            string path = @"../../" + filename + "_rewrited.html";
+            string path = @filename + "_rewrited.html";
 
             try
             {
